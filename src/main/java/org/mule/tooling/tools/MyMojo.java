@@ -36,11 +36,11 @@ public class MyMojo
     extends AbstractMojo
 {
     /**
-     * Directory to look for snapshots Jars.
+     * Plugin's directory to look for snapshots Jars.
      * @parameter expression="${project.build.directory}"
      * @required
      */
-    private String searchDirectory;
+    private String pluginDirectory;
 	
     /**
      * Project packaging
@@ -50,17 +50,17 @@ public class MyMojo
     private String packaging;
     
     /**
-     * Directory to look for snapshots Jars.
+     * Plugin's build directory to look for snapshots Jars.
      * @parameter expression="${basedir}"
      * @required
      */
-    private String builtFolder;
+    private String pluginBuildDirectory;
     
     /**
-     * Directory to look for snapshots Jars.
-     * @parameter expression="${myList}"
+     * Array of jars to ignore the checking.
+     * @parameter expression="${ignoreJarList}"
      */
-    private ArrayList<String> myList;
+    private ArrayList<String> ignoreJarList;
  
     
         
@@ -68,33 +68,28 @@ public class MyMojo
     public void execute()
         throws MojoExecutionException
     {
-        String dir = searchDirectory;
-        String packagingFolder = packaging;
-        String dirFolder = builtFolder;
-        ArrayList<String> ignoreJarCheck = new ArrayList<String>();
-        Log log = getLog();
         try 
         {
-      
-        	switch (packagingFolder) {
+        	Log log = getLog();
+        	switch (packaging) {
         	 
         	        case "eclipse-plugin":
-        	        	log.debug("Checking for jars SNAPSHOT in the plugin:"+ dirFolder);
-	        	        CheckerResults results = JarFinder.checkJarSnapshots(dir,new JarSnapshotFilter(),log,ignoreJarCheck);
+        	        	log.debug("Checking for jars SNAPSHOT in the plugin:"+ pluginBuildDirectory);
+	        	        CheckerResults results = JarFinder.checkJarSnapshots(pluginDirectory,new JarSnapshotFilter(),log,ignoreJarList);
 	        	        results.logResults(log);
 	        	        
 	        	        if(results.hasSnapshots()) {
-	        	        	String message = "There are snapshot jars in this project's results";
+	        	        	String message = "There are snapshot jars in this plugin!.";
 	        				throw new MojoExecutionException(message);
 	        	        }else
-	        	        	log.debug("There is not any jar SNAPSHOT in the plugin:"+ dirFolder);
+	        	        	log.debug("There is not any jar SNAPSHOT in the plugin:"+ pluginBuildDirectory);
         	        break;
       
         	        case "eclipse-repository":
-        	        	CheckerResults resultsBuilt = JarFinder.checkJarSnapshotsBuilt(dirFolder,new JarFilter(),log,ignoreJarCheck);
+        	        	CheckerResults resultsBuilt = JarFinder.checkJarSnapshotsBuilt(pluginBuildDirectory,new JarFilter(),log,ignoreJarList);
         	         	resultsBuilt.logTotalResults(log);
         	         	if(resultsBuilt.hasResults()) {
-        	         		String message = "There are snapshot jars in this built project";
+        	         		String message = "There are snapshot jars in the built project!.";
         	 				throw new MojoExecutionException(message);
         	         	}
         	        break;   

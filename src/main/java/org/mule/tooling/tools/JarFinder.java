@@ -25,20 +25,17 @@ public class JarFinder {
 	private static final String PREFIX_TEMP_FOLDER_NAME = "checkerJarsTempFolder";
 
 	public static CheckerResults checkJarSnapshotsBuilt(String dir,FilenameFilter filter,Log log,ArrayList ignoreJarCheck) throws IOException {
-		
 		CheckerResults resultsEachFolder = new CheckerResults();
 		CheckerResults totalResult = new CheckerResults();
 		String pluginsDirectory = "/target/repository/plugins";
-
-			
-			File rootFolder = new File(dir + pluginsDirectory);
-			if(rootFolder.exists()){
+		File rootFolder = new File(dir + pluginsDirectory);
+		
+		if(rootFolder.exists()){
 				resultsEachFolder = checkJarSnapshots(rootFolder.getCanonicalPath(),filter,log,ignoreJarCheck);
 				if (resultsEachFolder.hasSnapshots()){
 					totalResult.addCheckResult(resultsEachFolder);
 				}
 			}
-		
 		return totalResult;
 	}
 	
@@ -67,9 +64,11 @@ public class JarFinder {
 		
 	public static boolean checkJarNameInArrayOfIgnoreJars (String jarName, ArrayList<String> ignoreJarCheck) {
 		boolean result = false;
-		for (String jarNameElement : ignoreJarCheck){
-			if(jarName.matches(".*"+ jarNameElement +".*.jar")){
-				result = true;
+		if(ignoreJarCheck != null){
+			for (String jarNameElement : ignoreJarCheck){
+				if(jarName.matches(".*"+ jarNameElement +".*.jar")){
+					result = true;
+				}
 			}
 		}
 		return result;
@@ -86,7 +85,7 @@ public class JarFinder {
 				log.debug("Jar:"+jarFile.getName() );
 				boolean isSnapshot = false;
 				java.util.jar.JarEntry jarEntry = (java.util.jar.JarEntry) entries.nextElement();
-				log.debug("Entry:"+ jarEntry.getName());
+				//log.debug("Entry:"+ jarEntry.getName());
 				if (!jarEntry.getName().matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*.jar")){
 					if (jarEntry.getName().contains(".jar") && !jarEntry.getName().contains(java.io.File.separator)) {
 						// Copy jar file in a temp directory.
