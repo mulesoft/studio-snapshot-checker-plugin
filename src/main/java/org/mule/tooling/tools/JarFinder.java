@@ -23,13 +23,6 @@ import org.apache.maven.plugin.logging.Log;
 public class JarFinder {
 
 	private static final String PREFIX_TEMP_FOLDER_NAME = "checkerJarsTempFolder";
-//	private static final String MAC_DIRECTORY = "/target/products/studio.product/macosx/cocoa/x86_64/AnypointStudio.app/Contents/Eclipse/plugins";
-//	private static final String WINDOWS_32_DIRECTORY = "/target/products/studio.product/win32/win32/x86/AnypointStudio/plugins";
-//	private static final String WINDOWS_64_DIRECTORY = "/target/products/studio.product/win32/win32/x86_64/AnypointStudio/plugins";
-//	private static final String LINUX_64 = "/target/products/studio.product/linux/gtk/x86_64/AnypointStudio/plugins";
-//	private static final String LINUX_32 = "/target/products/studio.product/linux/gtk/x86/AnypointStudio/plugins";
-//	
-
 
 	public static CheckerResults checkJarSnapshotsBuilt(String dir,FilenameFilter filter,Log log,ArrayList ignoreJarCheck) throws IOException {
 		
@@ -44,10 +37,6 @@ public class JarFinder {
 				if (resultsEachFolder.hasSnapshots()){
 					totalResult.addCheckResult(resultsEachFolder);
 				}
-		
-				
-				
-
 			}
 		
 		return totalResult;
@@ -58,26 +47,25 @@ public class JarFinder {
 		Collection<String> jarBuildList = JarFinder.getJars(dir ,filter);
 		CheckerResults results = new CheckerResults();
 		
-	
 		if (!jarBuildList.isEmpty()) {
 			for (String buildJar : jarBuildList) {
 				File file = new File(buildJar);
-					if(!checkJarNameInArrayOfIgnoreJars(file.getName(),ignoreJarCheck)){
-						JarFile jarFile = new JarFile(file);
-						Enumeration<JarEntry> entries = jarFile.entries();
-						if (entries != null) {
-							checkJarEntries(entries,log,jarFile, results);
-						}
-						jarFile.close();
+				if(!checkJarNameInArrayOfIgnoreJars(file.getName(),ignoreJarCheck)){
+					JarFile jarFile = new JarFile(file);
+					Enumeration<JarEntry> entries = jarFile.entries();
+					if (entries != null) {
+						checkJarEntries(entries,log,jarFile, results);
 					}
+					jarFile.close();
+				}			
 			}
+			
 		}
 		return results;
 	}
 
 		
 	public static boolean checkJarNameInArrayOfIgnoreJars (String jarName, ArrayList<String> ignoreJarCheck) {
-		
 		boolean result = false;
 		for (String jarNameElement : ignoreJarCheck){
 			if(jarName.matches(".*"+ jarNameElement +".*.jar")){
@@ -95,10 +83,10 @@ public class JarFinder {
 		Path tempDir = Files.createTempDirectory(PREFIX_TEMP_FOLDER_NAME);
 		try {
 			while (entries.hasMoreElements()) {
-				//log.info("Jar:"+jarFile.getName() );
+				log.debug("Jar:"+jarFile.getName() );
 				boolean isSnapshot = false;
 				java.util.jar.JarEntry jarEntry = (java.util.jar.JarEntry) entries.nextElement();
-				//log.info("Entry:"+ jarEntry.getName());
+				log.debug("Entry:"+ jarEntry.getName());
 				if (!jarEntry.getName().matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*.jar")){
 					if (jarEntry.getName().contains(".jar") && !jarEntry.getName().contains(java.io.File.separator)) {
 						// Copy jar file in a temp directory.
@@ -109,7 +97,6 @@ public class JarFinder {
 						}
 					}
 				} else {
-					
 					results.addResult(jarFile.getName(), jarEntry.getName());
 				}
 			}
@@ -153,8 +140,7 @@ public class JarFinder {
 
 		java.io.File f = new java.io.File(dirOriginal.toFile().getCanonicalPath() + java.io.File.separator + jarEntry.getName());
 		java.io.InputStream is = jarFile.getInputStream(jarEntry);
-		FileUtils.copyInputStreamToFile(is, f); // copy the jarEntry to Temp
-												// folder.
+		FileUtils.copyInputStreamToFile(is, f); // copy the jarEntry to Temp							// folder.
 		is.close();
 	}
 

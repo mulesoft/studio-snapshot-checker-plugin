@@ -72,22 +72,10 @@ public class MyMojo
         String packagingFolder = packaging;
         String dirFolder = builtFolder;
         ArrayList<String> ignoreJarCheck = new ArrayList<String>();
-
+        Log log = getLog();
         try 
         {
-        	
-        	Log log = getLog();
-        	if(myList != null){
-        		ignoreJarCheck = myList;		
-        	}
-        	
-//        	if(ignoreJarCheck != null){
-//        	log.info("CANTIDAD DE ELEMENTOS DE LA LIST: "+ignoreJarCheck.size());
-//        
-//        	log.info("CANTIDAD DE ELEMENTOS DE LA LIST: "+ignoreJarCheck.get(0).toString());
-//        	log.info("CANTIDAD DE ELEMENTOS DE LA LIST: "+ignoreJarCheck.get(1).toString());
-//        	}
-        	
+      
         	switch (packagingFolder) {
         	 
         	        case "eclipse-plugin":
@@ -117,7 +105,7 @@ public class MyMojo
         }
         catch ( IOException e )
         {
-            throw new MojoExecutionException( "Error processing directory ", e );
+            throw new MojoExecutionException( "Error processing plugin directory ", e );
         }
         
     }
