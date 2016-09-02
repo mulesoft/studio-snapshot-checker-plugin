@@ -64,8 +64,7 @@ public class MyMojo extends AbstractMojo
     
         
     @Override
-    public void execute()
-        throws MojoExecutionException
+    public void execute() throws MojoExecutionException
     {
         try 
         {
@@ -83,7 +82,6 @@ public class MyMojo extends AbstractMojo
 	        	        }else
 	        	        	log.debug("There is not any jar SNAPSHOT in the plugin:"+ pluginBuildDirectory);
         	        break;
-      
         	        case "eclipse-repository":
         	        	CheckerResults resultsBuilt = JarFinder.checkJarSnapshotsBuilt(pluginBuildDirectory,new JarFilter(),log,ignoreJarList);
         	         	resultsBuilt.logTotalResults(log);
