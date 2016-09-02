@@ -23,69 +23,73 @@ import org.apache.maven.plugin.logging.Log;
 public class JarFinder {
 
 	private static final String PREFIX_TEMP_FOLDER_NAME = "checkerJarsTempFolder";
-	private static final String MAC_DIRECTORY = "/target/products/studio.product/macosx/cocoa/x86_64/AnypointStudio.app/Contents/Eclipse/plugins";
-	private static final String WINDOWS_32_DIRECTORY = "/target/products/studio.product/win32/win32/x86/AnypointStudio/plugins";
-	private static final String WINDOWS_64_DIRECTORY = "/target/products/studio.product/win32/win32/x86_64/AnypointStudio/plugins";
-	private static final String LINUX_64 = "/target/products/studio.product/linux/gtk/x86_64/AnypointStudio/plugins";
-	private static final String LINUX_32 = "/target/products/studio.product/linux/gtk/x86/AnypointStudio/plugins";
-	
+//	private static final String MAC_DIRECTORY = "/target/products/studio.product/macosx/cocoa/x86_64/AnypointStudio.app/Contents/Eclipse/plugins";
+//	private static final String WINDOWS_32_DIRECTORY = "/target/products/studio.product/win32/win32/x86/AnypointStudio/plugins";
+//	private static final String WINDOWS_64_DIRECTORY = "/target/products/studio.product/win32/win32/x86_64/AnypointStudio/plugins";
+//	private static final String LINUX_64 = "/target/products/studio.product/linux/gtk/x86_64/AnypointStudio/plugins";
+//	private static final String LINUX_32 = "/target/products/studio.product/linux/gtk/x86/AnypointStudio/plugins";
+//	
 
 
-	public static CheckerResults checkJarSnapshotsBuilt(String dir,FilenameFilter filter,Log log) throws IOException {
+	public static CheckerResults checkJarSnapshotsBuilt(String dir,FilenameFilter filter,Log log,ArrayList ignoreJarCheck) throws IOException {
 		
 		CheckerResults resultsEachFolder = new CheckerResults();
 		CheckerResults totalResult = new CheckerResults();
-		List<String> builtDirectories = new ArrayList<String>(
-			    Arrays.asList(WINDOWS_32_DIRECTORY,WINDOWS_64_DIRECTORY,MAC_DIRECTORY,LINUX_64,LINUX_32));
-		
-		
-		for(String builtFolder: builtDirectories){
+		String pluginsDirectory = "/target/repository/plugins";
+
 			
-			File rootFolder = new File(dir + builtFolder);
+			File rootFolder = new File(dir + pluginsDirectory);
 			if(rootFolder.exists()){
-				
-				List<File> fileList = Arrays.asList(rootFolder.listFiles());
-				for(File file : fileList){
-					if(file.isDirectory()){
-						resultsEachFolder = checkJarSnapshots(file.getCanonicalPath(),filter,log);
-						if (resultsEachFolder.hasSnapshots()){
-							totalResult.addCheckResult(resultsEachFolder);
-						}
-						
-					}
-				}
-				resultsEachFolder = checkJarSnapshots(rootFolder.getCanonicalPath(),filter,log);
+				resultsEachFolder = checkJarSnapshots(rootFolder.getCanonicalPath(),filter,log,ignoreJarCheck);
 				if (resultsEachFolder.hasSnapshots()){
 					totalResult.addCheckResult(resultsEachFolder);
 				}
+		
+				
+				
+
 			}
-		}	
+		
 		return totalResult;
 	}
 	
 	
-	
-	public static CheckerResults checkJarSnapshots(String dir,FilenameFilter filter,Log log) throws IOException {
+	public static CheckerResults checkJarSnapshots(String dir,FilenameFilter filter,Log log,ArrayList ignoreJarCheck) throws IOException {
 		Collection<String> jarBuildList = JarFinder.getJars(dir ,filter);
 		CheckerResults results = new CheckerResults();
 		
 	
 		if (!jarBuildList.isEmpty()) {
 			for (String buildJar : jarBuildList) {
-				//log.info(buildJar);
 				File file = new File(buildJar);
-				JarFile jarFile = new JarFile(file);
-				Enumeration<JarEntry> entries = jarFile.entries();
-				if (entries != null) {
-					checkJarEntries(entries,log,jarFile, results);
-				}
-				jarFile.close();
+					if(!checkJarNameInArrayOfIgnoreJars(file.getName(),ignoreJarCheck)){
+						JarFile jarFile = new JarFile(file);
+						Enumeration<JarEntry> entries = jarFile.entries();
+						if (entries != null) {
+							checkJarEntries(entries,log,jarFile, results);
+						}
+						jarFile.close();
+					}
 			}
 		}
 		return results;
 	}
 
-	public static void checkJarEntries(Enumeration<JarEntry> entries, Log log, JarFile jarFile, CheckerResults results) throws IOException {
+		
+	public static boolean checkJarNameInArrayOfIgnoreJars (String jarName, ArrayList<String> ignoreJarCheck) {
+		
+		boolean result = false;
+		for (String jarNameElement : ignoreJarCheck){
+			if(jarName.matches(".*"+ jarNameElement +".*.jar")){
+				result = true;
+			}
+		}
+		return result;
+	}
+	
+	
+	
+	public static void checkJarEntries(Enumeration<JarEntry> entries, Log log, JarFile jarFile, CheckerResults results ) throws IOException {
 		log.debug("Checking snapshots jars: " + jarFile.getName());
 
 		Path tempDir = Files.createTempDirectory(PREFIX_TEMP_FOLDER_NAME);
@@ -95,7 +99,7 @@ public class JarFinder {
 				boolean isSnapshot = false;
 				java.util.jar.JarEntry jarEntry = (java.util.jar.JarEntry) entries.nextElement();
 				//log.info("Entry:"+ jarEntry.getName());
-				if (!jarEntry.getName().matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*.jar")) {
+				if (!jarEntry.getName().matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*.jar")){
 					if (jarEntry.getName().contains(".jar") && !jarEntry.getName().contains(java.io.File.separator)) {
 						// Copy jar file in a temp directory.
 						JarFinder.copyJarToTempDirectory(tempDir, jarEntry, jarFile);

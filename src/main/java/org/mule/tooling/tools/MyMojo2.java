@@ -47,22 +47,22 @@ public class MyMojo2
     {   	
     	 String dir = builtFolder;
     
-    	 try
-         {
-         	Log log = getLog();
-         	
-         	CheckerResults results = JarFinder.checkJarSnapshotsBuilt(dir,new JarFilter(),log);
-         	results.logTotalResults(log);
-         	if(results.hasResults()) {
-         		String message = "There are snapshot jars in this built project";
- 				throw new MojoExecutionException(message);
-         	}
-         	
-         }
-         catch ( IOException e )
-         {
-             throw new MojoExecutionException( "Error processing directory ", e );
-         }
+//    	 try
+//         {
+//         	Log log = getLog();
+//         	
+//         	CheckerResults results = JarFinder.checkJarSnapshotsBuilt(dir,new JarFilter(),log);
+//         	results.logTotalResults(log);
+//         	if(results.hasResults()) {
+//         		String message = "There are snapshot jars in this built project";
+// 				throw new MojoExecutionException(message);
+//         	}
+//         	
+//         }
+//         catch ( IOException e )
+//         {
+//             throw new MojoExecutionException( "Error processing directory ", e );
+//         }
        
         
     }

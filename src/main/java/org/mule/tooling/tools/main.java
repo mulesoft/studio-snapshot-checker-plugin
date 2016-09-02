@@ -3,13 +3,16 @@ import org.apache.maven.plugin.logging.Log;
 import org.mule.tooling.tools.JarFinder.JarFilter;
 import org.mule.tooling.tools.JarFinder.JarSnapshotFilter;
 
+import jdk.nashorn.internal.ir.annotations.Ignore;
+
 public class main {
 
 	public static void main(String[] args) throws Exception {
 		 
-		String dir = "/Users/agustincelentano/Desktop/testmavenplugin/org.mule.tooling.studio.product";
-		String dirDos = "/Users/agustincelentano/Desktop/testmavenplugin/son2/target";
+		 String dir = "/Users/agustincelentano/Desktop/testmavenplugin/org.mule.tooling.studio.product";
+		 String dirDos = "/Users/agustincelentano/Desktop/testmavenplugin/son2/target";
 		Log log = new Log() {
+	
 			
 			@Override
 			public void warn(CharSequence arg0, Throwable arg1) {
@@ -107,11 +110,11 @@ public class main {
 				
 			}
 		};
-		CheckerResults resultsBuilt = JarFinder.checkJarSnapshotsBuilt(dir, new JarFilter(), log);
-		resultsBuilt.logTotalResults(log);
-		System.out.println("---------------------");
-		CheckerResults results = JarFinder.checkJarSnapshots(dirDos,new JarSnapshotFilter(),log);
-		results.logResults(log);
+//		CheckerResults resultsBuilt = JarFinder.checkJarSnapshotsBuilt(dir, new JarFilter(), log,ignoreJarsCheck);
+//		resultsBuilt.logTotalResults(log);
+//		System.out.println("---------------------");
+//		CheckerResults results = JarFinder.checkJarSnapshots(dirDos,new JarSnapshotFilter(),log,ignoreJarsCheck);
+//		results.logResults(log);
 	}
 		
 	}

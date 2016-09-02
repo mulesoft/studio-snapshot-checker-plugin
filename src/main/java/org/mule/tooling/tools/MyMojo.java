@@ -22,6 +22,8 @@ import org.apache.maven.plugin.logging.Log;
 import org.mule.tooling.tools.JarFinder.JarSnapshotFilter;
 import org.mule.tooling.tools.JarFinder.JarFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Goal which look for snapshot jars
@@ -54,6 +56,13 @@ public class MyMojo
      */
     private String builtFolder;
     
+    /**
+     * Directory to look for snapshots Jars.
+     * @parameter expression="${myList}"
+     */
+    private ArrayList<String> myList;
+ 
+    
         
     @Override
     public void execute()
@@ -62,15 +71,28 @@ public class MyMojo
         String dir = searchDirectory;
         String packagingFolder = packaging;
         String dirFolder = builtFolder;
-       
+        ArrayList<String> ignoreJarCheck = new ArrayList<String>();
+
         try 
         {
+        	
         	Log log = getLog();
+        	if(myList != null){
+        		ignoreJarCheck = myList;		
+        	}
+        	
+//        	if(ignoreJarCheck != null){
+//        	log.info("CANTIDAD DE ELEMENTOS DE LA LIST: "+ignoreJarCheck.size());
+//        
+//        	log.info("CANTIDAD DE ELEMENTOS DE LA LIST: "+ignoreJarCheck.get(0).toString());
+//        	log.info("CANTIDAD DE ELEMENTOS DE LA LIST: "+ignoreJarCheck.get(1).toString());
+//        	}
+        	
         	switch (packagingFolder) {
         	 
         	        case "eclipse-plugin":
-        	        	log.debug("Cheking for jars SNAPSHOT in the plugin:"+ dirFolder);
-	        	        CheckerResults results = JarFinder.checkJarSnapshots(dir,new JarSnapshotFilter(),log);
+        	        	log.debug("Checking for jars SNAPSHOT in the plugin:"+ dirFolder);
+	        	        CheckerResults results = JarFinder.checkJarSnapshots(dir,new JarSnapshotFilter(),log,ignoreJarCheck);
 	        	        results.logResults(log);
 	        	        
 	        	        if(results.hasSnapshots()) {
@@ -81,7 +103,7 @@ public class MyMojo
         	        break;
       
         	        case "eclipse-repository":
-        	        	CheckerResults resultsBuilt = JarFinder.checkJarSnapshotsBuilt(dirFolder,new JarFilter(),log);
+        	        	CheckerResults resultsBuilt = JarFinder.checkJarSnapshotsBuilt(dirFolder,new JarFilter(),log,ignoreJarCheck);
         	         	resultsBuilt.logTotalResults(log);
         	         	if(resultsBuilt.hasResults()) {
         	         		String message = "There are snapshot jars in this built project";
