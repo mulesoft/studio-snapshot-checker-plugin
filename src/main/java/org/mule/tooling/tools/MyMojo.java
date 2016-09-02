@@ -32,8 +32,7 @@ import java.util.List;
  *
  * @phase verify
  */
-public class MyMojo
-    extends AbstractMojo
+public class MyMojo extends AbstractMojo
 {
     /**
      * Plugin's directory to look for snapshots Jars.
