@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<artifactId>testmavenplugin</artifactId>
+		<groupId>org.mule.tooling</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<groupId>org.mule.tooling</groupId>
+	<artifactId>son2</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<properties>
+        <packagingEclipse>eclipse-plugin</packagingEclipse>
+     </properties>
+
+
+	<build> 
+		<plugins> 
+			<plugin> 
+				<groupId>org.mule.tooling</groupId> 
+				<artifactId>snapshot-checker-plugin</artifactId> 
+				<version>1.0-SNAPSHOT</version> 
+				<configuration>
+          			<myList>
+  						<param>value1</param>
+  						<param>value2</param>
+					</myList>
+        		</configuration>
+			</plugin> 
+		</plugins> 
+
+		
+
+	</build>
+	
+</project>
