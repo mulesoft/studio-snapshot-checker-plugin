@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @phase verify
  */
-public class MyMojo extends AbstractMojo
+public class CheckerMojo extends AbstractMojo
 {
     /**
      * Plugin's directory to look for snapshots Jars.
@@ -43,7 +43,7 @@ public class MyMojo extends AbstractMojo
 	
     /**
      * Project packaging
-     * @parameter expression="${packagingEclipse}"
+     * @parameter expression="${project.packaging}"
      * @required
      */
     private String packaging;

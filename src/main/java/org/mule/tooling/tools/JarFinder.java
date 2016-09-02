@@ -66,7 +66,7 @@ public class JarFinder {
 		boolean result = false;
 		if(ignoreJarCheck != null){
 			for (String jarNameElement : ignoreJarCheck){
-				if(jarName.matches(".*"+ jarNameElement +".*.jar")){
+				if(jarName.matches(".*"+jarNameElement+".*.jar")){
 					result = true;
 				}
 			}
