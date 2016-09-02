@@ -1,13 +1,11 @@
 package org.mule.tooling.tools;
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
-
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import junit.framework.Assert;
+
 
 public class CheckerTest {
 
@@ -27,9 +25,19 @@ public class CheckerTest {
 		ArrayList<String> jarsToBeIgnored = new ArrayList<String>();
 		jarsToBeIgnored.add("org.mule.tooling.server.3.8.1.ee");
 		jarsToBeIgnored.add("org.mule.tooling.server.3.8.2.ee");
+		Assert.assertTrue(JarFinder.checkJarNameInArrayOfIgnoreJars(jarFileName, jarsToBeIgnored));
+	}
+	
+	
+	@Test
+	public void checkNoJarNameInArrayOfIgnoreJarsTest() {
 		
-		System.out.println(JarFinder.checkJarNameInArrayOfIgnoreJars(jarFileName, jarsToBeIgnored));
-		Assert.assertEquals(true,JarFinder.checkJarNameInArrayOfIgnoreJars(jarFileName, jarsToBeIgnored));
+		String jarFileName = "fruit.org.mule.tooling.server.3.8.3.ee.jar";
+		ArrayList<String> jarsToBeIgnored = new ArrayList<String>();
+		jarsToBeIgnored.add("org.mule.tooling.server.3.8.1.ee");
+		jarsToBeIgnored.add("org.mule.tooling.server.3.8.2.ee");
+		Assert.assertFalse(JarFinder.checkJarNameInArrayOfIgnoreJars(jarFileName, jarsToBeIgnored));
 	}
 
+		
 }
