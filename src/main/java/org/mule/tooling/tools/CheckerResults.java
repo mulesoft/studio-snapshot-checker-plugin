@@ -16,7 +16,7 @@ public class CheckerResults {
 		if(results.containsKey(jarFileName)){
 			List<String> currentList = results.get(jarFileName);
 			currentList.add(jarEntryName);
-			results.replace(jarFileName, currentList);
+			results.put(jarFileName, currentList);
 		}else{
 			List<String> newList = new ArrayList<>();
 			newList.add(jarEntryName);
