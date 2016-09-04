@@ -20,10 +20,10 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.mule.tooling.tools.JarFinder.JarSnapshotFilter;
+import org.omg.CORBA.PRIVATE_MEMBER;
 import org.mule.tooling.tools.JarFinder.JarFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Goal which look for snapshot jars
@@ -61,11 +61,12 @@ public class CheckerMojo extends AbstractMojo
      */
     private ArrayList<String> ignoreJarList;
  
-    
         
     @Override
     public void execute() throws MojoExecutionException
     {
+    	
+    	  
         try 
         {
         	Log log = getLog();
@@ -83,7 +84,7 @@ public class CheckerMojo extends AbstractMojo
 	        	        	log.debug("There is not any jar SNAPSHOT in the plugin:"+ pluginBuildDirectory);
         	        break;
         	        case "eclipse-repository":
-        	        	CheckerResults resultsBuilt = JarFinder.checkJarSnapshotsBuilt(pluginBuildDirectory,new JarFilter(),log,ignoreJarList);
+        	        	CheckerResults resultsBuilt = JarFinder.checkJarSnapshotsBuilt(pluginBuildDirectory+"/target/repository/plugins",new JarFilter(),log,ignoreJarList);
         	         	resultsBuilt.logTotalResults(log);
         	         	if(resultsBuilt.hasResults()) {
         	         		String message = "There are snapshot jars in the built project!.";
