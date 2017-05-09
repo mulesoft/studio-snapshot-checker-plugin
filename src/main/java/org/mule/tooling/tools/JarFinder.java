@@ -39,22 +39,30 @@ public class JarFinder {
 	
 	
 	public static CheckerResults checkJarSnapshots(String dir,FilenameFilter filter,Log log,ArrayList<String> ignoreJarCheck) throws IOException {
-		Collection<String> jarBuildList = JarFinder.getJars(dir ,filter);
+		Collection<String> jarBuildList = JarFinder.getJars(dir ,filter,log);
 		CheckerResults results = new CheckerResults();
 		boolean isSnapshotJar = false;
 		if (!jarBuildList.isEmpty()) {
 			for (String buildJar : jarBuildList) {
 				File file = new File(buildJar);
+				
 				if(!checkJarNameInArrayOfIgnoreJars(file.getName(),ignoreJarCheck)){
 					JarFile jarFile = new JarFile(file);
-					Enumeration<JarEntry> entries = jarFile.entries();
-					if (entries != null) {
-						checkJarEntries(entries,log,jarFile, results);
-						//Check the properties file of the jar file itself
+					
+					if (!file.getName().matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*.jar")){
+							//Check the properties file of the jar file itself
 						isSnapshotJar = JarFinder.checkJarFileIfSnapshotInPropertiesFile(jarFile,log);
 						if (isSnapshotJar) {
 							results.addResult(jarFile.getName(), jarFile.getName());
-						}
+						}	
+					}else{
+						results.addResult(jarFile.getName(), jarFile.getName());
+					}
+					
+					//Check inside entries
+					Enumeration<JarEntry> entries = jarFile.entries();
+					if (entries != null) {
+						checkJarEntries(entries,log,jarFile, results);
 					}
 					jarFile.close();
 				}			
@@ -117,7 +125,7 @@ public class JarFinder {
 			Properties properties = new Properties();
 			try(InputStream inputStream = jarfile.getInputStream(zipEntry)){
 			properties.load(inputStream);}
-			jarfile.close();
+			
 			if (properties.getProperty("version").matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*")) {
 				result = true;
 			}
@@ -183,12 +191,13 @@ public class JarFinder {
 	}
 
 
-	public static Collection<String> getJars(String folder,FilenameFilter filter) {
+	public static Collection<String> getJars(String folder,FilenameFilter filter,Log log) {
 			File fileList = new File(folder);
 			Collection<String> jarPaths = new ArrayList<>();
 			if(fileList.exists()){
 				List<File> asList = Arrays.asList(fileList.listFiles(filter));
 					for (File file : asList) {
+						log.debug("FILE NAME:" + file.getPath());
 						jarPaths.add(file.getPath());
 					}
 				return jarPaths;
