@@ -41,6 +41,7 @@ public class JarFinder {
 	public static CheckerResults checkJarSnapshots(String dir,FilenameFilter filter,Log log,ArrayList<String> ignoreJarCheck) throws IOException {
 		Collection<String> jarBuildList = JarFinder.getJars(dir ,filter);
 		CheckerResults results = new CheckerResults();
+		boolean isSnapshotJar = false;
 		if (!jarBuildList.isEmpty()) {
 			for (String buildJar : jarBuildList) {
 				File file = new File(buildJar);
@@ -49,6 +50,11 @@ public class JarFinder {
 					Enumeration<JarEntry> entries = jarFile.entries();
 					if (entries != null) {
 						checkJarEntries(entries,log,jarFile, results);
+						//Check the properties file of the jar file itself
+						isSnapshotJar = JarFinder.checkJarFileIfSnapshotInPropertiesFile(jarFile,log);
+						if (isSnapshotJar) {
+							results.addResult(jarFile.getName(), jarFile.getName());
+						}
 					}
 					jarFile.close();
 				}			
@@ -77,30 +83,48 @@ public class JarFinder {
 		log.debug("Checking snapshots jars: " + jarFile.getName());
 
 		Path tempDir = Files.createTempDirectory(PREFIX_TEMP_FOLDER_NAME);
-		try {
-			log.debug("Jar:"+jarFile.getName());
-			while (entries.hasMoreElements()) {
-				
-				boolean isSnapshot = false;
+		try { 
+			//log.debug("Jar:"+jarFile.getName());
+			while (entries.hasMoreElements()) {	
+				boolean isSnapshotEntry = false;
 				java.util.jar.JarEntry jarEntry = (java.util.jar.JarEntry) entries.nextElement();
 				if (!jarEntry.getName().matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*.jar")){
 					if (jarEntry.getName().contains(".jar") && !jarEntry.getName().contains(java.io.File.separator)) {
 						// Copy jar file in a temp directory.
 						JarFinder.copyJarToTempDirectory(tempDir, jarEntry, jarFile);
-						isSnapshot = JarFinder.checkSnapshotInPropertiesFile(tempDir, jarEntry, log);
-						if (isSnapshot) {
+						isSnapshotEntry = JarFinder.checkSnapshotInPropertiesFile(tempDir, jarEntry, log);
+						if (isSnapshotEntry) {
 							results.addResult(jarFile.getName(), jarEntry.getName());
 						}
 					}
 				} else {
 					results.addResult(jarFile.getName(), jarEntry.getName());
 				}
-			}
+			}	
 		} finally {
 			JarFinder.deleteTempDir(tempDir.toFile());
 		}
 	}
 
+	
+	public static boolean checkJarFileIfSnapshotInPropertiesFile(JarFile jarfile, Log log) throws IOException {
+		
+		Boolean result = false;
+		ArrayList<JarEntry> searchResults = searchForEntry(jarfile, "META-INF/maven/.*pom.properties");
+		if (searchResults != null) {
+			String pathToResource = searchResults.get(0).getName();
+			ZipEntry zipEntry = jarfile.getEntry(pathToResource);
+			Properties properties = new Properties();
+			try(InputStream inputStream = jarfile.getInputStream(zipEntry)){
+			properties.load(inputStream);}
+			jarfile.close();
+			if (properties.getProperty("version").matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*")) {
+				result = true;
+			}
+		}
+		return result;
+	}
+	
 	public static boolean checkSnapshotInPropertiesFile(Path tempDir, JarEntry jarEntry, Log log) throws IOException {
 		File fileInside = new File(tempDir.toFile().getCanonicalPath() + java.io.File.separator + jarEntry.getName());
 		JarFile jarFileInside = new JarFile(fileInside);
@@ -119,6 +143,9 @@ public class JarFinder {
 		}
 		return result;
 	}
+	
+	
+	
 
 	public static void deleteTempDir(File file) {
 		File[] filesInside = file.listFiles();

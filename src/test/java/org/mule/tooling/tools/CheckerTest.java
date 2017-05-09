@@ -115,9 +115,8 @@ public class CheckerTest extends AbstractMojo {
 		jarsToBeIgnored.add("org.mule.tooling.server.3.8.2.ee");
 		CheckerResults results = new CheckerResults();
 		results = JarFinder.checkJarSnapshots(pluginBuildDirectory,new JarSnapshotFilter(),getLog(),jarsToBeIgnored);
-		Assert.assertEquals(1, results.getResults().keySet().size());
+		Assert.assertEquals(2, results.getResults().size());
 		Assert.assertTrue(results.getResults().keySet().toString().matches(".*jarwithtwosnapshots.*"));
-		Assert.assertEquals(2, results.getResults().values().iterator().next().size());
 	}
 	
 	
@@ -129,9 +128,8 @@ public class CheckerTest extends AbstractMojo {
 		jarsToBeIgnored.add("org.mule.tooling.server.3.8.2.ee");
 		CheckerResults results = new CheckerResults();
 		results = JarFinder.checkJarSnapshotsBuilt(pluginBuildDirectory,new JarFilter(),getLog(),jarsToBeIgnored);
-		Assert.assertEquals(1, results.getTotalResults().get(0).getResults().keySet().size());
+		Assert.assertEquals(2, results.getTotalResults().get(0).getResults().keySet().size());
 		Assert.assertTrue(results.getTotalResults().get(0).getResults().keySet().toString().matches(".*jarwithtwosnapshots.*"));
-		Assert.assertEquals(2, results.getTotalResults().get(0).getResults().values().iterator().next().size());
 	}
 
 	@Override

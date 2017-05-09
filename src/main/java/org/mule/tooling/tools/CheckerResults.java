@@ -44,7 +44,8 @@ public class CheckerResults {
 	public void logResults(Log log) {
 		if (this.hasSnapshots()) {
 			for (Map.Entry<String, List<String>> entry : results.entrySet()) {
-				log.error("(" + entry.getKey() + ")" + " --- " + entry.getValue());				
+				log.error("(" + entry.getKey() + ")" + " --- " + entry.getValue());			
+				
 			}
 		}
 	}
