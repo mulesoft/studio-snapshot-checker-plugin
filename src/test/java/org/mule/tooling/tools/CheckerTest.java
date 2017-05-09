@@ -70,9 +70,10 @@ public class CheckerTest extends AbstractMojo {
 	
 	@Test
 	public void getJarsAmountTest() {
+		Log log = getLog();
 		String dir = "src/main/resources";
-		Collection<String> jarBuildList = JarFinder.getJars(dir,new JarFilter());
-		Assert.assertEquals(3, jarBuildList.size());
+		Collection<String> jarBuildList = JarFinder.getJars(dir,new JarFilter(),log);
+		Assert.assertEquals(5, jarBuildList.size());
 	}
 	
 	@Test
@@ -86,7 +87,7 @@ public class CheckerTest extends AbstractMojo {
 	@Test
 	public void checkSnapshotInPropertiesFileFailTest() throws IOException {
 		Path tempDir = Paths.get("src/main/resources");
-		JarEntry jarEntry = new JarEntry("withoutsnapshot.jar");
+		JarEntry jarEntry = new JarEntry("WithoutSnaptshot.jar");
 		Assert.assertFalse(JarFinder.checkSnapshotInPropertiesFile(tempDir,jarEntry,getLog()));
 	}
 
@@ -116,7 +117,6 @@ public class CheckerTest extends AbstractMojo {
 		CheckerResults results = new CheckerResults();
 		results = JarFinder.checkJarSnapshots(pluginBuildDirectory,new JarSnapshotFilter(),getLog(),jarsToBeIgnored);
 		Assert.assertEquals(2, results.getResults().size());
-		Assert.assertTrue(results.getResults().keySet().toString().matches(".*jarwithtwosnapshots.*"));
 	}
 	
 	
@@ -128,8 +128,7 @@ public class CheckerTest extends AbstractMojo {
 		jarsToBeIgnored.add("org.mule.tooling.server.3.8.2.ee");
 		CheckerResults results = new CheckerResults();
 		results = JarFinder.checkJarSnapshotsBuilt(pluginBuildDirectory,new JarFilter(),getLog(),jarsToBeIgnored);
-		Assert.assertEquals(2, results.getTotalResults().get(0).getResults().keySet().size());
-		Assert.assertTrue(results.getTotalResults().get(0).getResults().keySet().toString().matches(".*jarwithtwosnapshots.*"));
+		Assert.assertEquals(4, results.getTotalResults().get(0).getResults().size());
 	}
 
 	@Override
