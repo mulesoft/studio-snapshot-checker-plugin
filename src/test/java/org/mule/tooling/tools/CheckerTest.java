@@ -94,7 +94,7 @@ public class CheckerTest extends AbstractMojo {
 	
 	@Test
 	public void searchForEntryTest() throws IOException {
-		JarFile jarFile  = new JarFile("src/main/resources");
+		JarFile jarFile  = new JarFile("src/main/resources/org.mule.tooling-SNAPSHOT.jar");
 		ArrayList<JarEntry> results = JarFinder.searchForEntry(jarFile, "META-INF/maven/.*pom.properties");
 		Assert.assertEquals(1, results.size());	
 	}
@@ -110,7 +110,7 @@ public class CheckerTest extends AbstractMojo {
 	
 	@Test
 	public void checkJarSnapshotsTest() throws IOException {
-		String pluginBuildDirectory = "src/main/resources/";
+		String pluginBuildDirectory = "src/main/resources";
 		ArrayList<String> jarsToBeIgnored = new ArrayList<String>();
 		jarsToBeIgnored.add("jaxb-impl");
 		jarsToBeIgnored.add("jaxb-xjc");
@@ -122,13 +122,13 @@ public class CheckerTest extends AbstractMojo {
 	
 	@Test
 	public void checkJarSnapshotsBuiltTest() throws IOException {
-		String pluginBuildDirectory = "src/main/resources/test";
+		String pluginBuildDirectory = "src/main/resources";
 		ArrayList<String> jarsToBeIgnored = new ArrayList<String>();
 		jarsToBeIgnored.add("org.mule.tooling.server.3.8.1.ee");
 		jarsToBeIgnored.add("org.mule.tooling.server.3.8.2.ee");
 		CheckerResults results = new CheckerResults();
 		results = JarFinder.checkJarSnapshotsBuilt(pluginBuildDirectory,new JarFilter(),getLog(),jarsToBeIgnored);
-		Assert.assertEquals(1, results.getTotalResults().get(0).getResults().size());
+		Assert.assertEquals(2, results.getTotalResults().get(0).getResults().size());
 	}
 
 	@Override
