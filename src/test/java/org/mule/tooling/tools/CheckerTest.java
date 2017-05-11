@@ -94,7 +94,7 @@ public class CheckerTest extends AbstractMojo {
 	
 	@Test
 	public void searchForEntryTest() throws IOException {
-		JarFile jarFile  = new JarFile("src/main/resources/org.mule.tooling-SNAPSHOT.jar");
+		JarFile jarFile  = new JarFile("src/main/resources");
 		ArrayList<JarEntry> results = JarFinder.searchForEntry(jarFile, "META-INF/maven/.*pom.properties");
 		Assert.assertEquals(1, results.size());	
 	}
