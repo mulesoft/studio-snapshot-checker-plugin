@@ -24,80 +24,66 @@ public class JarFinder {
 
 	private static final String PREFIX_TEMP_FOLDER_NAME = "checkerJarsTempFolder";
 
-	public static CheckerResults checkJarSnapshotsBuilt(String dir,FilenameFilter filter,Log log,ArrayList ignoreJarCheck) throws IOException {
+	public static CheckerResults checkJarSnapshotsBuilt(String dir, FilenameFilter filter, Log log,
+			ArrayList<String> ignoreJarCheck) throws IOException {
 		CheckerResults resultsEachFolder = new CheckerResults();
 		CheckerResults totalResult = new CheckerResults();
 		File rootFolder = new File(dir);
-		if(rootFolder.exists()){
-				resultsEachFolder = checkJarSnapshots(rootFolder.getCanonicalPath(),filter,log,ignoreJarCheck);
-				if (resultsEachFolder.hasSnapshots()){
-					totalResult.addCheckResult(resultsEachFolder);
-				}
+		if (rootFolder.exists()) {
+			resultsEachFolder = checkJarSnapshots(rootFolder.getCanonicalPath(), filter, log, ignoreJarCheck);
+			if (resultsEachFolder.hasSnapshots()) {
+				totalResult.addCheckResult(resultsEachFolder);
+			}
 		}
 		return totalResult;
 	}
-	
-	
-	public static CheckerResults checkJarSnapshots(String dir,FilenameFilter filter,Log log,ArrayList<String> ignoreJarCheck) throws IOException {
-		Collection<String> jarBuildList = JarFinder.getJars(dir ,filter,log);
+
+	public static CheckerResults checkJarSnapshots(String dir, FilenameFilter filter, Log log,
+			ArrayList<String> ignoreJarCheck) throws IOException {
+		Collection<String> jarBuildList = JarFinder.getJars(dir, filter);
 		CheckerResults results = new CheckerResults();
-		boolean isSnapshotJar = false;
 		if (!jarBuildList.isEmpty()) {
 			for (String buildJar : jarBuildList) {
 				File file = new File(buildJar);
-				
-				if(!checkJarNameInArrayOfIgnoreJars(file.getName(),ignoreJarCheck)){
+				if (!checkJarNameInArrayOfIgnoreJars(file.getName(), ignoreJarCheck)) {
 					JarFile jarFile = new JarFile(file);
-					
-					if (!file.getName().matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*.jar")){
-							//Check the properties file of the jar file itself
-						isSnapshotJar = JarFinder.checkJarFileIfSnapshotInPropertiesFile(jarFile,log);
-						if (isSnapshotJar) {
-							results.addResult(jarFile.getName(), jarFile.getName());
-						}	
-					}else{
-						results.addResult(jarFile.getName(), jarFile.getName());
-					}
-					
-					//Check inside entries
 					Enumeration<JarEntry> entries = jarFile.entries();
 					if (entries != null) {
-						checkJarEntries(entries,log,jarFile, results);
+						checkJarEntries(entries, log, jarFile, results);
 					}
 					jarFile.close();
-				}			
+				}
 			}
-			
 		}
 		return results;
 	}
 
-		
-	public static boolean checkJarNameInArrayOfIgnoreJars (String jarName, ArrayList<String> ignoreJarCheck) {
+	public static boolean checkJarNameInArrayOfIgnoreJars(String jarName, ArrayList<String> ignoreJarCheck) {
 		boolean result = false;
-		if(ignoreJarCheck != null){
-			for (String jarNameElement : ignoreJarCheck){
-				if(jarName.matches(".*"+jarNameElement+".*.jar")){
+		if (ignoreJarCheck != null) {
+			for (String jarNameElement : ignoreJarCheck) {
+				if (jarName.matches(".*" + jarNameElement + ".*.jar")) {
 					result = true;
 				}
 			}
 		}
 		return result;
 	}
-	
-	
-	
-	public static void checkJarEntries(Enumeration<JarEntry> entries, Log log, JarFile jarFile, CheckerResults results ) throws IOException {
+
+	public static void checkJarEntries(Enumeration<JarEntry> entries, Log log, JarFile jarFile, CheckerResults results)
+			throws IOException {
 		log.debug("Checking snapshots jars: " + jarFile.getName());
 
 		Path tempDir = Files.createTempDirectory(PREFIX_TEMP_FOLDER_NAME);
-		try { 
-			//log.debug("Jar:"+jarFile.getName());
-			while (entries.hasMoreElements()) {	
+		try {
+			// log.debug("Jar:"+jarFile.getName());
+			while (entries.hasMoreElements()) {
 				boolean isSnapshotEntry = false;
 				java.util.jar.JarEntry jarEntry = (java.util.jar.JarEntry) entries.nextElement();
-				if (!jarEntry.getName().matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*.jar")){
-					if (jarEntry.getName().contains(".jar") && !jarEntry.getName().contains(java.io.File.separator)) {
+				if (!jarEntry.getName().matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*.jar")) {
+					if (jarEntry.getName().contains(".jar")) {
+						
+						// !jarEntry.getName().contains(java.io.File.separator)
 						// Copy jar file in a temp directory.
 						JarFinder.copyJarToTempDirectory(tempDir, jarEntry, jarFile);
 						isSnapshotEntry = JarFinder.checkSnapshotInPropertiesFile(tempDir, jarEntry, log);
@@ -108,52 +94,34 @@ public class JarFinder {
 				} else {
 					results.addResult(jarFile.getName(), jarEntry.getName());
 				}
-			}	
+			}
 		} finally {
 			JarFinder.deleteTempDir(tempDir.toFile());
 		}
 	}
 
-	
-	public static boolean checkJarFileIfSnapshotInPropertiesFile(JarFile jarfile, Log log) throws IOException {
-		
-		Boolean result = false;
-		ArrayList<JarEntry> searchResults = searchForEntry(jarfile, "META-INF/maven/.*pom.properties");
-		if (searchResults != null) {
-			String pathToResource = searchResults.get(0).getName();
-			ZipEntry zipEntry = jarfile.getEntry(pathToResource);
-			Properties properties = new Properties();
-			try(InputStream inputStream = jarfile.getInputStream(zipEntry)){
-			properties.load(inputStream);}
-			
-			if (properties.getProperty("version").matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*")) {
-				result = true;
-			}
-		}
-		return result;
-	}
-	
+
 	public static boolean checkSnapshotInPropertiesFile(Path tempDir, JarEntry jarEntry, Log log) throws IOException {
 		File fileInside = new File(tempDir.toFile().getCanonicalPath() + java.io.File.separator + jarEntry.getName());
 		JarFile jarFileInside = new JarFile(fileInside);
 		ArrayList<JarEntry> searchResults = searchForEntry(jarFileInside, "META-INF/maven/.*pom.properties");
 		Boolean result = false;
+		String artifactId = (String) jarEntry.getName().subSequence(jarEntry.getName().lastIndexOf("/")+1, jarEntry.getName().lastIndexOf("."));
+		
 		if (searchResults != null) {
 			String pathToResource = searchResults.get(0).getName();
 			ZipEntry zipEntry = jarFileInside.getEntry(pathToResource);
 			Properties properties = new Properties();
-			try(InputStream inputStream = jarFileInside.getInputStream(zipEntry)){
-			properties.load(inputStream);}
+			try (InputStream inputStream = jarFileInside.getInputStream(zipEntry)) {
+				properties.load(inputStream);
+			}
 			jarFileInside.close();
-			if (properties.getProperty("version").matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*")) {
+			if (properties.getProperty("version").matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*") && properties.getProperty("artifactId").matches(".*" + artifactId + ".*")) {
 				result = true;
 			}
 		}
 		return result;
 	}
-	
-	
-	
 
 	public static void deleteTempDir(File file) {
 		File[] filesInside = file.listFiles();
@@ -166,9 +134,11 @@ public class JarFinder {
 	}
 
 	public static void copyJarToTempDirectory(Path dirOriginal, JarEntry jarEntry, JarFile jarFile) throws IOException {
-		java.io.File f = new java.io.File(dirOriginal.toFile().getCanonicalPath() + java.io.File.separator + jarEntry.getName());
+		java.io.File f = new java.io.File(
+				dirOriginal.toFile().getCanonicalPath() + java.io.File.separator + jarEntry.getName());
 		java.io.InputStream is = jarFile.getInputStream(jarEntry);
-		FileUtils.copyInputStreamToFile(is, f); // copy the jarEntry to Temp							// folder.
+		FileUtils.copyInputStreamToFile(is, f); // copy the jarEntry to Temp //
+												// folder.
 		is.close();
 	}
 
@@ -180,7 +150,7 @@ public class JarFinder {
 			return name.endsWith(".jar") && m.matches();
 		}
 	}
-	
+
 	public static final class JarFilter implements FilenameFilter {
 		@Override
 		public boolean accept(File dir, String name) {
@@ -190,19 +160,17 @@ public class JarFinder {
 		}
 	}
 
-
-	public static Collection<String> getJars(String folder,FilenameFilter filter,Log log) {
-			File fileList = new File(folder);
-			Collection<String> jarPaths = new ArrayList<>();
-			if(fileList.exists()){
-				List<File> asList = Arrays.asList(fileList.listFiles(filter));
-					for (File file : asList) {
-						log.debug("FILE NAME:" + file.getPath());
-						jarPaths.add(file.getPath());
-					}
-				return jarPaths;
+	public static Collection<String> getJars(String folder, FilenameFilter filter) {
+		File fileList = new File(folder);
+		Collection<String> jarPaths = new ArrayList<>();
+		if (fileList.exists()) {
+			List<File> asList = Arrays.asList(fileList.listFiles(filter));
+			for (File file : asList) {
+				jarPaths.add(file.getPath());
 			}
 			return jarPaths;
+		}
+		return jarPaths;
 	}
 
 	public static ArrayList<JarEntry> searchForEntry(JarFile jarFile, String searchTermRegex) throws IOException {

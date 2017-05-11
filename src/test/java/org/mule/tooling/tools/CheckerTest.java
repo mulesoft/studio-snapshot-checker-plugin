@@ -72,7 +72,7 @@ public class CheckerTest extends AbstractMojo {
 	public void getJarsAmountTest() {
 		Log log = getLog();
 		String dir = "src/main/resources";
-		Collection<String> jarBuildList = JarFinder.getJars(dir,new JarFilter(),log);
+		Collection<String> jarBuildList = JarFinder.getJars(dir,new JarFilter());
 		Assert.assertEquals(5, jarBuildList.size());
 	}
 	
@@ -81,7 +81,7 @@ public class CheckerTest extends AbstractMojo {
 		
 		Path tempDir = Paths.get("src/main/resources");
 		JarEntry jarEntry = new JarEntry("org.mule.tooling-SNAPSHOT.jar");
-		Assert.assertTrue(JarFinder.checkSnapshotInPropertiesFile(tempDir,jarEntry,getLog()));
+		Assert.assertFalse(JarFinder.checkSnapshotInPropertiesFile(tempDir,jarEntry,getLog()));
 	}
 	
 	@Test
@@ -110,25 +110,25 @@ public class CheckerTest extends AbstractMojo {
 	
 	@Test
 	public void checkJarSnapshotsTest() throws IOException {
-		String pluginBuildDirectory = "src/main/resources";
+		String pluginBuildDirectory = "src/main/resources/";
 		ArrayList<String> jarsToBeIgnored = new ArrayList<String>();
-		jarsToBeIgnored.add("org.mule.tooling.server.3.8.1.ee");
-		jarsToBeIgnored.add("org.mule.tooling.server.3.8.2.ee");
+		jarsToBeIgnored.add("jaxb-impl");
+		jarsToBeIgnored.add("jaxb-xjc");
 		CheckerResults results = new CheckerResults();
 		results = JarFinder.checkJarSnapshots(pluginBuildDirectory,new JarSnapshotFilter(),getLog(),jarsToBeIgnored);
-		Assert.assertEquals(2, results.getResults().size());
+		Assert.assertEquals(1, results.getResults().size());
 	}
 	
 	
 	@Test
 	public void checkJarSnapshotsBuiltTest() throws IOException {
-		String pluginBuildDirectory = "src/main/resources";
+		String pluginBuildDirectory = "src/main/resources/test";
 		ArrayList<String> jarsToBeIgnored = new ArrayList<String>();
 		jarsToBeIgnored.add("org.mule.tooling.server.3.8.1.ee");
 		jarsToBeIgnored.add("org.mule.tooling.server.3.8.2.ee");
 		CheckerResults results = new CheckerResults();
 		results = JarFinder.checkJarSnapshotsBuilt(pluginBuildDirectory,new JarFilter(),getLog(),jarsToBeIgnored);
-		Assert.assertEquals(4, results.getTotalResults().get(0).getResults().size());
+		Assert.assertEquals(1, results.getTotalResults().get(0).getResults().size());
 	}
 
 	@Override
