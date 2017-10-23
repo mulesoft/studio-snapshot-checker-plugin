@@ -4,7 +4,7 @@
 	<groupId>org.mule.tooling.tools</groupId>
 	<artifactId>snapshot-checker-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
-	<version>1.1-SNAPSHOT</version>
+	<version>1.2-SNAPSHOT</version>
 	<name>snapshot-checker-plugin</name>
 	
 	<build>
