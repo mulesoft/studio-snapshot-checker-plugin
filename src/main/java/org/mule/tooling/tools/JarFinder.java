@@ -52,6 +52,8 @@ public class JarFinder {
 						checkJarEntries(entries, log, jarFile, results);
 					}
 					jarFile.close();
+				}else{
+					log.debug("This snapshot is ignored:" + file.getName());
 				}
 			}
 		}
@@ -72,7 +74,7 @@ public class JarFinder {
 
 	public static void checkJarEntries(Enumeration<JarEntry> entries, Log log, JarFile jarFile, CheckerResults results)
 			throws IOException {
-		log.debug("Checking snapshots jars: " + jarFile.getName());
+		//log.debug("Checking snapshots jars: " + jarFile.getName());
 
 		Path tempDir = Files.createTempDirectory(PREFIX_TEMP_FOLDER_NAME);
 		try {

@@ -20,7 +20,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.mule.tooling.tools.JarFinder.JarSnapshotFilter;
-import org.omg.CORBA.PRIVATE_MEMBER;
 import org.mule.tooling.tools.JarFinder.JarFilter;
 import java.io.IOException;
 import java.util.ArrayList;

@@ -16,13 +16,12 @@ public class main {
 		ignoreJarList.add("Hello");
 
 	 	Log log = getLog();
-		CheckerResults resultsBuilt = JarFinder.checkJarSnapshotsBuilt("/Users/agustin.celentano/gitDevelop/studio-snapshot-checker-plugin/testFolder/org.mule.tooling.product/repository/plugins",new JarFilter(),log,ignoreJarList);
-     	resultsBuilt.logTotalResults(log);
+	//	CheckerResults resultsBuilt = JarFinder.checkJarSnapshotsBuilt("/Users/agustin.celentano/gitDevelop/studio-snapshot-checker-plugin/testFolder/org.mule.tooling.product/repository/plugins",new JarFilter(),log,ignoreJarList);
+		CheckerResults resultsBuilt = JarFinder.checkJarSnapshotsBuilt("/Users/agustin.celentano/gitDevelop/mule-tooling/org.mule.tooling.products/org.mule.tooling.studio.product/target/repository",new JarFilter(),log,ignoreJarList);
+
+		resultsBuilt.logTotalResults(log);
 		
-     	
-     	
-     	
-		
+    
 	}
 
 	private static Log getLog() {

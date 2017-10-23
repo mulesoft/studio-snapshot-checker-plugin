@@ -123,9 +123,11 @@ public class CheckerTest extends AbstractMojo {
 	@Test
 	public void checkJarSnapshotsBuiltTest() throws IOException {
 		String pluginBuildDirectory = "src/main/resources";
+		//String pluginBuildDirectory = "/Users/agustin.celentano/gitDevelop/mule-tooling/org.mule.tooling.products/org.mule.tooling.studio.product/target/repository/plugins";		
 		ArrayList<String> jarsToBeIgnored = new ArrayList<String>();
 		jarsToBeIgnored.add("org.mule.tooling.server.3.8.1.ee");
-		jarsToBeIgnored.add("org.mule.tooling.server.3.8.2.ee");
+		jarsToBeIgnored.add("google-collect-snapshot-20080530");
+		//jarsToBeIgnored.add("org.mule.tooling.core.m2.repository");
 		CheckerResults results = new CheckerResults();
 		results = JarFinder.checkJarSnapshotsBuilt(pluginBuildDirectory,new JarFilter(),getLog(),jarsToBeIgnored);
 		Assert.assertEquals(2, results.getTotalResults().get(0).getResults().size());
