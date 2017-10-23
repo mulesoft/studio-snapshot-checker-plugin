@@ -49,7 +49,7 @@ public class JarFinder {
 					JarFile jarFile = new JarFile(file);
 					Enumeration<JarEntry> entries = jarFile.entries();
 					if (entries != null) {
-						checkJarEntries(entries, log, jarFile, results);
+						checkJarEntries(entries, log, jarFile, results,ignoreJarCheck);
 					}
 					jarFile.close();
 				}else{
@@ -72,7 +72,7 @@ public class JarFinder {
 		return result;
 	}
 
-	public static void checkJarEntries(Enumeration<JarEntry> entries, Log log, JarFile jarFile, CheckerResults results)
+	public static void checkJarEntries(Enumeration<JarEntry> entries, Log log, JarFile jarFile, CheckerResults results, ArrayList<String> ignoreJarCheck)
 			throws IOException {
 		//log.debug("Checking snapshots jars: " + jarFile.getName());
 
@@ -84,13 +84,16 @@ public class JarFinder {
 				java.util.jar.JarEntry jarEntry = (java.util.jar.JarEntry) entries.nextElement();
 				if (!jarEntry.getName().matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*.jar")) {
 					if (jarEntry.getName().contains(".jar")) {
-						
-						// !jarEntry.getName().contains(java.io.File.separator)
-						// Copy jar file in a temp directory.
-						JarFinder.copyJarToTempDirectory(tempDir, jarEntry, jarFile);
-						isSnapshotEntry = JarFinder.checkSnapshotInPropertiesFile(tempDir, jarEntry, log);
-						if (isSnapshotEntry) {
-							results.addResult(jarFile.getName(), jarEntry.getName());
+						if (!checkJarNameInArrayOfIgnoreJars(jarEntry.getName(), ignoreJarCheck)) {
+							// !jarEntry.getName().contains(java.io.File.separator)
+							// Copy jar file in a temp directory.
+							JarFinder.copyJarToTempDirectory(tempDir, jarEntry, jarFile);
+							isSnapshotEntry = JarFinder.checkSnapshotInPropertiesFile(tempDir, jarEntry, log);
+							if (isSnapshotEntry) {
+								results.addResult(jarFile.getName(), jarEntry.getName());
+							}
+						}else{
+							log.debug("This snapshot is ignored: "+ jarFile.getName() + " -- [" + jarEntry.getName() + "]");
 						}
 					}
 				} else {
@@ -109,7 +112,9 @@ public class JarFinder {
 		ArrayList<JarEntry> searchResults = searchForEntry(jarFileInside, "META-INF/maven/.*pom.properties");
 		Boolean result = false;
 		String artifactId = (String) jarEntry.getName().subSequence(jarEntry.getName().lastIndexOf("/")+1, jarEntry.getName().lastIndexOf("."));
-		
+		if (artifactId.indexOf("_") != -1){
+			artifactId = (String) jarEntry.getName().subSequence(0, jarEntry.getName().indexOf("_"));
+		}
 		if (searchResults != null) {
 			String pathToResource = searchResults.get(0).getName();
 			ZipEntry zipEntry = jarFileInside.getEntry(pathToResource);

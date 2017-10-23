@@ -1,10 +1,12 @@
 package org.mule.tooling.tools;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -132,6 +134,33 @@ public class CheckerTest extends AbstractMojo {
 		results = JarFinder.checkJarSnapshotsBuilt(pluginBuildDirectory,new JarFilter(),getLog(),jarsToBeIgnored);
 		Assert.assertEquals(2, results.getTotalResults().get(0).getResults().size());
 	}
+	
+	
+	@Test
+	public void checkIgnoreJarsIncheckJarEntriesTest() throws IOException {
+		ArrayList<String> jarsToBeIgnored = new ArrayList<String>();
+		jarsToBeIgnored.add("org.mule.tooling.ui.modules.http");
+		File file = new File("src/main/resources/WithTwoSnapshots.jar");
+		JarFile jarFile = new JarFile(file);
+		Enumeration<JarEntry> entries = jarFile.entries();	
+		CheckerResults results = new CheckerResults();
+		JarFinder.checkJarEntries(entries, getLog(), jarFile, results,jarsToBeIgnored);
+		Assert.assertEquals(1, results.getResults().get("src/main/resources/WithTwoSnapshots.jar").size());
+	}
+	
+	
+	@Test
+	public void checkJarEntriesTest() throws IOException {
+		ArrayList<String> jarsToBeIgnored = new ArrayList<String>();
+		jarsToBeIgnored.add("jaxb-xjc");
+		File file = new File("src/main/resources/WithTwoSnapshots.jar");
+		JarFile jarFile = new JarFile(file);
+		Enumeration<JarEntry> entries = jarFile.entries();	
+		CheckerResults results = new CheckerResults();
+		JarFinder.checkJarEntries(entries, getLog(), jarFile, results,jarsToBeIgnored);
+		Assert.assertEquals(2, results.getResults().get("src/main/resources/WithTwoSnapshots.jar").size());
+	}
+	
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
