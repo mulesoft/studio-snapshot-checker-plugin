@@ -83,7 +83,7 @@ public class JarFinder {
 				boolean isSnapshotEntry = false;
 				java.util.jar.JarEntry jarEntry = (java.util.jar.JarEntry) entries.nextElement();
 				if (!jarEntry.getName().matches(".*[sS][nN][aA][pP][sS][hH][oO][tT].*.jar")) {
-					if (jarEntry.getName().contains(".jar")) {
+					if (jarEntry.getName().endsWith(".jar")) {
 						if (!checkJarNameInArrayOfIgnoreJars(jarEntry.getName(), ignoreJarCheck)) {
 							// !jarEntry.getName().contains(java.io.File.separator)
 							// Copy jar file in a temp directory.
@@ -127,6 +127,7 @@ public class JarFinder {
 				result = true;
 			}
 		}
+		jarFileInside.close();
 		return result;
 	}
 
